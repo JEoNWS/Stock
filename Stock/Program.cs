@@ -1,11 +1,14 @@
 ﻿using System;
 using Excel = Microsoft.Office.Interop.Excel;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Support.UI;
 
 namespace Stock
 {
     class Program
     {
-        static float EPSGap(float esp1, float esp2)
+        /*static float EPSGap(float esp1, float esp2)
         {
             return esp2 - esp1;
         }
@@ -83,8 +86,34 @@ namespace Stock
             //Console.WriteLine(ws.Cells[1, 2].value);
             wb.SaveAs(@"D:\Works\C#\AutoStock\A.xlsx");
             wb.Close();
-            excelApp.Quit();
+            excelApp.Quit()
             }
+        }*/
+        static void Main(string[] args)
+        {
+            IWebDriver driver = new ChromeDriver();
+            try
+            {
+                Console.WriteLine(String.Format("https://navercomp.wisereport.co.kr/v2/company/c1040001.aspx?cmp_cd={0}&cn=", "005930"));
+                driver.Url = String.Format("https://navercomp.wisereport.co.kr/v2/company/c1040001.aspx?cmp_cd={0}&cn=", "005930");
+                Console.WriteLine("2");
+                var table = driver.FindElement(By.XPath("/html/body/div/form/div[1]/div/div[2]/div[3]/div/div/div[9]/table[2]/tbody/tr[1]/td[2]"));
+                Console.WriteLine(table.Text);
+                Console.WriteLine("1");
+                driver.Url = "https://navercomp.wisereport.co.kr/v2/company/c1040001.aspx?cmp_cd=051910&cn=";
+                Console.WriteLine("3");
+                table = driver.FindElement(By.XPath("/html/body/div/form/div[1]/div/div[2]/div[3]/div/div/div[9]/table[2]/tbody/tr[1]/td[2]")); //*[@id="viQk80WlNFN0"]/table[2]/tbody/tr[1]/td[2]
+                Console.WriteLine(table.Text);
+                Console.WriteLine("4");
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            //var tbody = table.FindElement(By.TagName("tbody"));
+            //var trs = tbody.FindElements(By.TagName("tr"));
+            //Console.WriteLine(trs);
         }
     }
 }
