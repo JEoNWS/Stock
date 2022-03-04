@@ -3,6 +3,7 @@ using Excel = Microsoft.Office.Interop.Excel;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
+using System.Collections.Generic;
 
 namespace Stock
 {
@@ -89,31 +90,74 @@ namespace Stock
             excelApp.Quit()
             }
         }*/
-        static void Main(string[] args)
+        static List<string> GetStockNum()
         {
-            IWebDriver driver = new ChromeDriver();
+            bool end = false;
+            int stockCount = 1;
+            List<string> stockNumList = new List<string>();
+            Excel.Application excelApp = new Excel.Application();
+            Excel.Workbook wb = excelApp.Workbooks.Open(@"D:\Works\C#\AutoStock\주식.xlsx");
             try
             {
-                Console.WriteLine(String.Format("https://navercomp.wisereport.co.kr/v2/company/c1040001.aspx?cmp_cd={0}&cn=", "005930"));
-                driver.Url = String.Format("https://navercomp.wisereport.co.kr/v2/company/c1040001.aspx?cmp_cd={0}&cn=", "005930");
-                Console.WriteLine("2");
-                var table = driver.FindElement(By.XPath("/html/body/div/form/div[1]/div/div[2]/div[3]/div/div/div[9]/table[2]/tbody/tr[1]/td[2]"));
-                Console.WriteLine(table.Text);
-                Console.WriteLine("1");
-                driver.Url = "https://navercomp.wisereport.co.kr/v2/company/c1040001.aspx?cmp_cd=051910&cn=";
-                Console.WriteLine("3");
-                table = driver.FindElement(By.XPath("/html/body/div/form/div[1]/div/div[2]/div[3]/div/div/div[9]/table[2]/tbody/tr[1]/td[2]")); //*[@id="viQk80WlNFN0"]/table[2]/tbody/tr[1]/td[2]
-                Console.WriteLine(table.Text);
-                Console.WriteLine("4");
+                Excel.Worksheet ws = wb.Worksheets.Item[1];
+                
+                while(end == false)
+                {
+                    stockNumList.Add((string)ws.Cells[stockCount, 1].value);
+                    Console.WriteLine(stockCount);
+                    stockCount++;
+                    
+                    if (ws.Cells[stockCount, 1].value == null)
+                        end = true;
+                }
+                Console.WriteLine(stockCount);
+
+                foreach (string a in stockNumList)
+                    Console.WriteLine(a);
+                return stockNumList;
             }
             catch(Exception e)
             {
                 Console.WriteLine(e);
+                return stockNumList;
             }
-
-            //var tbody = table.FindElement(By.TagName("tbody"));
-            //var trs = tbody.FindElements(By.TagName("tr"));
-            //Console.WriteLine(trs);
+            finally
+            {
+                wb.Close();
+                excelApp.Quit();
+            }
         }
+        static void GetESP(string a)
+        {
+            IWebDriver driver = new ChromeDriver();
+            try
+            {
+                Console.WriteLine(String.Format("https://navercomp.wisereport.co.kr/v2/company/c1040001.aspx?cmp_cd={0}&cn=", a));
+                driver.Url = String.Format("https://navercomp.wisereport.co.kr/v2/company/c1040001.aspx?cmp_cd={0}&cn=", a);
+                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(1);
+                Console.WriteLine("a");
+                for (int i = 2; i < 7; i++)
+                {
+                    var table = driver.FindElement(By.XPath($"/html/body/div/form/div[1]/div/div[2]/div[3]/div/div/div[9]/table[2]/tbody/tr[1]/td[{i}]"));
+
+                    Console.WriteLine(table.Text);
+                }
+                Console.WriteLine("b");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+        static void Main(string[] args)
+        {
+            List<string> stocks = GetStockNum();
+
+            foreach(string stock in stocks)
+            {
+                GetESP(stock);
+            }
+        }
+        
     }
 }
